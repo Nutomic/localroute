@@ -14,7 +14,7 @@ import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
 
 public class Controller extends MediaRouteProvider.RouteController implements 
-		MediaPlayer.OnCompletionListener {
+		MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 	
 	private Context mContext;
 	
@@ -27,14 +27,15 @@ public class Controller extends MediaRouteProvider.RouteController implements
     private String mItemId;
     
     private int mState;
-
-	MediaPlayer mPlayer = new MediaPlayer();
+    
+	private MediaPlayer mPlayer = new MediaPlayer();
 
     public Controller(String routeId, Context context) {
     	mContext = context;
         mRouteId = routeId;
         mAudio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mPlayer.setOnPreparedListener(this);
     }
 
     @Override
@@ -72,11 +73,10 @@ public class Controller extends MediaRouteProvider.RouteController implements
         	try {
         		mPlayer.reset();
 				mPlayer.setDataSource(mContext, intent.getData());
-				mPlayer.prepare();
-				mPlayer.start();
+				mPlayer.prepareAsync();
 				mItemId = intent.getDataString();
-	        	mState = MediaItemStatus.PLAYBACK_STATE_PLAYING;
-            	getStatus(mItemId, mRouteId, callback);
+				mState = MediaItemStatus.PLAYBACK_STATE_BUFFERING;
+				getStatus(mItemId, mRouteId, callback);
             	return true;
 			} catch (IllegalArgumentException e) {
 				mState = MediaItemStatus.PLAYBACK_STATE_ERROR;
@@ -126,20 +126,25 @@ public class Controller extends MediaRouteProvider.RouteController implements
 					.setContentDuration(mPlayer.getDuration())
 					.setTimestamp(SystemClock.elapsedRealtime())
 					.build().asBundle();
-			
+
 			status.putString(MediaControlIntent.EXTRA_SESSION_ID, mRouteId);
 			status.putString(MediaControlIntent.EXTRA_ITEM_ID, mItemId);
 		}
 		else
 			status = new MediaItemStatus.Builder(MediaItemStatus.PLAYBACK_STATE_INVALIDATED)
 					.build().asBundle();
-		
-		callback.onResult(status);
-    	
+
+		callback.onResult(status);    	
     }
 
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		mState = MediaItemStatus.PLAYBACK_STATE_FINISHED;
+	}
+
+	@Override
+	public void onPrepared(MediaPlayer mp) {
+		mPlayer.start();
+    	mState = MediaItemStatus.PLAYBACK_STATE_PLAYING;
 	}
 }

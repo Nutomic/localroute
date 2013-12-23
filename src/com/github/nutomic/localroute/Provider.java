@@ -13,11 +13,6 @@ import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouteProviderDescriptor;
 import android.support.v7.media.MediaRouter;
 
-/**
- * Demonstrates how to create a custom media route provider.
- *
- * @see SampleMediaRouteProviderService
- */
 final class Provider extends MediaRouteProvider {
 
     private static final String ROUTE_ID = "local_route";

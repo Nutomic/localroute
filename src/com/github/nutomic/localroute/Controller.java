@@ -39,9 +39,12 @@ import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaItemStatus;
 import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
+import android.util.Log;
 
 public class Controller extends MediaRouteProvider.RouteController implements 
 		MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+	
+	private static final String TAG = "Controller";
 	
 	private Context mContext;
 	
@@ -107,10 +110,10 @@ public class Controller extends MediaRouteProvider.RouteController implements
             	return true;
 			} catch (IllegalArgumentException e) {
 				mState = MediaItemStatus.PLAYBACK_STATE_ERROR;
-				e.printStackTrace();
+				Log.d(TAG, "Failed to start playback", e);
 			} catch (IOException e) {
 				mState = MediaItemStatus.PLAYBACK_STATE_ERROR;
-				e.printStackTrace();
+				Log.d(TAG, "Failed to start playback", e);
 			}
     	}
         else if (intent.getAction().equals(MediaControlIntent.ACTION_PAUSE)) {
@@ -167,11 +170,13 @@ public class Controller extends MediaRouteProvider.RouteController implements
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		mState = MediaItemStatus.PLAYBACK_STATE_FINISHED;
+		mPlayer.setOnCompletionListener(null);
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		mPlayer.start();
     	mState = MediaItemStatus.PLAYBACK_STATE_PLAYING;
+        mPlayer.setOnCompletionListener(this);
 	}
 }

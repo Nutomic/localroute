@@ -40,6 +40,13 @@ import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouteProviderDescriptor;
 import android.support.v7.media.MediaRouter;
 
+/**
+ * MediaRouteProvider that details the local audio route with its 
+ * controls to the system. 
+ * 
+ * @author felix
+ *
+ */
 final class Provider extends MediaRouteProvider {
 
     private static final String ROUTE_ID = "local_route";

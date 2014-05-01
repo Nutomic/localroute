@@ -41,6 +41,12 @@ import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.util.Log;
 
+/**
+ * Receives control intents through media route and executes them on a MediaPlayer.
+ * 
+ * @author felix
+ *
+ */
 public class Controller extends MediaRouteProvider.RouteController implements 
 		MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 	
@@ -167,12 +173,21 @@ public class Controller extends MediaRouteProvider.RouteController implements
 		callback.onResult(status);    	
     }
 
+    /**
+     * Sets state to finished. 
+     * 
+     * Note: Do not set the listener before play() is called 
+     *       (or this will be called immediately).
+     */
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		mState = MediaItemStatus.PLAYBACK_STATE_FINISHED;
 		mPlayer.setOnCompletionListener(null);
 	}
 
+	/**
+	 * Starts playback and sets completion listener.
+	 */
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		mPlayer.start();
